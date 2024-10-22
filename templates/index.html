@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pneumonia Prediction</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-image: url('templates/bg.png'); /* Replace 'background-image.jpg' with the URL or path to your image */
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #ffffff;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 40px;
+            background-color: rgba(0, 0, 0, 0.5); /* Adjust the alpha value (last parameter) to change transparency */
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+
+        h1 {
+            font-size: 60px; /* Increase font size */
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Add text shadow */
+        }
+
+
+        p {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #ffffff;
+            text-align: justify;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        #imageFile {
+            margin-bottom: 20px;
+            padding: 10px;
+            width: 80%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+
+        #imageFile::placeholder {
+            color: black; /* Change the color of the placeholder text */
+        }
+
+        #imageFile::-webkit-file-upload-button {
+                color: black; /* Change color to black */
+            }
+
+            #imageFile::file-selector-button {
+                color: black; /* Change color to black */
+            }
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            color: #ffffff;
+            background-image: linear-gradient(to bottom, #007bff, #0056b3); /* Gradient background */
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease; /* Transition effect */
+        }
+
+        button:hover {
+            background-image: linear-gradient(to bottom, #0056b3, #007bff); /* Gradient background on hover */
+        }
+
+
+        #predictionResult {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333333;
+            background-color: #f9f9f9;
+            padding: 12px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #information {
+            margin-top: 40px;
+            text-align: left;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        #information-text {
+            flex: 0 0 60%;
+            padding-right: 20px;
+        }
+
+        #information-image {
+            flex: 0 0 50%; /* Set the width of the image container */
+            max-width: 400px; /* Maximum width of the image container */
+            height: auto; /* Automatically adjust the height */
+            border-radius: 8px;
+            
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #information-image img {
+            max-width: 100%; /* Ensure the image doesn't exceed the container width */
+            max-height: 100%; /* Ensure the image doesn't exceed the container height */
+            
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Pneumonia Prediction</h1>
+    
+         <form id="uploadForm" enctype="multipart/form-data" onsubmit="predict(event)">
+            <input type="file" name="image" id="imageFile" onchange="displayImage()">
+            <button type="submit">Predict</button>
+        </form>
+        <p id="predictionResult"></p>
+        <!-- Display chosen image and its name -->
+        <div id="selectedImage" style="display: none;">
+            <h3>Selected Image:</h3>
+            <img id="selectedImg" src="#" alt="Selected Image" style="max-width: 300px;">
+            <p id="selectedImgName" style="color: black;"></p>
+        </div>
+        <div id="information">
+            <div id="information-text">
+                <h2>About Pneumonia</h2>
+                <p id="pneumoniaInfo">
+                    Pneumonia is an infection that inflames the air sacs in one or both lungs. The air sacs may fill with fluid or pus (purulent material), causing cough with phlegm or pus, fever, chills, and difficulty breathing. Pneumonia can range in seriousness from mild to life-threatening. It is most serious for infants and young children, people older than age 65, and people with health problems or weakened immune systems.
+                </p>
+                <div id="moreInfo" style="display: none;">
+                    <p>
+                        Additional details about pneumonia can be added here.
+                    </p>
+                    <h3>Causes</h3>
+                    <ul>
+                        <li>Bacteria</li>
+                        <li>Virus</li>
+                        <li>Fungi</li>
+                    </ul>
+                    <h3>Precautions</h3>
+                    <ul>
+                        <li>Get vaccinated</li>
+                        <li>Wash hands regularly</li>
+                        <li>Avoid smoking</li>
+                        <li>Stay away from sick people</li>
+                    </ul>
+                </div>
+                <button id="readMoreBtn" onclick="toggleInfo()">Continue reading...</button>
+            </div>
+
+            <div id="information-image">
+                <img src="templates\doc.png" alt="Pneumonia Image">
+            </div>
+        </div>
+    </div>
+    <script>
+        function toggleInfo() {
+            var moreInfo = document.getElementById("moreInfo");
+            var btnText = document.getElementById("readMoreBtn");
+
+            if (moreInfo.style.display === "none") {
+                moreInfo.style.display = "block";
+                btnText.innerHTML = "Read less...";
+            } else {
+                moreInfo.style.display = "none";
+                btnText.innerHTML = "Continue reading...";
+            }
+        }
+    </script>
+
+    <script>
+
+        // Function to display the chosen image
+        function displayImage() {
+            var fileInput = document.getElementById('imageFile');
+            var selectedImage = document.getElementById('selectedImage');
+            var selectedImg = document.getElementById('selectedImg');
+            var selectedImgName = document.getElementById('selectedImgName');
+
+            // Check if a file is selected
+            if (fileInput.files.length > 0) {
+                // Display the selected image and its name
+                var file = fileInput.files[0];
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    selectedImg.src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+                selectedImgName.textContent = "Image Name: " + file.name;
+
+                // Show the selected image container
+                selectedImage.style.display = 'block';
+            }
+        }
+
+        function predict(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const formData = new FormData();
+            const fileInput = document.getElementById('imageFile');
+
+            if (!fileInput.files.length) {
+                alert('Please select an image file.');
+                return;
+            }
+
+            formData.append('image', fileInput.files[0]);
+
+            fetch('http://127.0.0.1:5000/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+    if (!response.ok) {
+        throw new Error('Network response was not ok.');
+    }
+    return response.json();  // Parse response JSON
+})
+.then(data => {
+    const predictedClass = data.predicted_class;
+    const predictedProbability = data.confidence;
+
+    if (predictedClass !== undefined && !isNaN(predictedProbability)) {
+        const probabilityPercentage = (predictedProbability * 100).toFixed(2);
+        const predictionResult = `Predicted Class: ${predictedClass}, Confidence: ${probabilityPercentage}%`;
+        document.getElementById('predictionResult').textContent = predictionResult;
+    } else {
+        throw new Error('Invalid prediction data received.');
+    }
+})
+
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('predictionResult').textContent = 'Prediction failed. Please try again.';
+            });
+        }
+    </script>
+</body>
+</html>
+
